@@ -1,0 +1,145 @@
+{
+  "$schema": "https://sig.example/spec/1.0/graph.schema.json",
+  "specVersion": "1.0.0",
+  "graph": {
+    "id": "orders-system",
+    "name": "Order Management System",
+    "description": "Legacy order management application being prepared for modernization.",
+    "mode": "brownfield",
+    "createdAt": "2026-11-09T10:00:00Z",
+    "updatedAt": "2026-11-09T12:00:00Z"
+  },
+  "nodes": [
+    {
+      "id": "system-orders", "type": "SoftwareSystem", "name": "Order Management System",
+      "domain": "engineering", "lifecycle": "active",
+      "properties": {"implementationLanguage": "Visual Basic 6", "modernizationTarget": "TypeScript"},
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "actor-sales-clerk", "type": "Actor", "name": "Sales Clerk",
+      "domain": "business", "lifecycle": "active",
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "actor-manager", "type": "Actor", "name": "Manager",
+      "domain": "business", "lifecycle": "active",
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "entity-customer", "type": "Entity", "name": "Customer",
+      "domain": "information", "lifecycle": "active",
+      "properties": {"attributes": ["id", "name", "availableCredit"]},
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "entity-order", "type": "Entity", "name": "Order",
+      "domain": "information", "lifecycle": "active",
+      "properties": {
+        "attributes": ["id", "customerId", "status", "total"],
+        "states": ["draft", "submitted", "approved", "rejected"]
+      },
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "workflow-submit-order", "type": "Workflow", "name": "Submit Order",
+      "domain": "behavior", "lifecycle": "active",
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "rule-credit-limit", "type": "BusinessRule", "name": "Customer Credit Limit",
+      "domain": "behavior", "lifecycle": "active",
+      "properties": {
+        "ruleKind": "constraint",
+        "expression": {"language": "sig-expression-v1", "expression": "order.total <= customer.availableCredit"},
+        "severity": "blocking"
+      },
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "rule-manager-approval", "type": "BusinessRule", "name": "Manager Approval Required",
+      "domain": "behavior", "lifecycle": "active",
+      "properties": {
+        "ruleKind": "authorization",
+        "expression": {"language": "sig-expression-v1", "expression": "actor.role == 'manager'"},
+        "severity": "blocking"
+      },
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "form-order-entry", "type": "Form", "name": "Order Entry Form",
+      "domain": "experience", "lifecycle": "active",
+      "properties": {"legacyTechnology": "VB6"},
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "module-order", "type": "Module", "name": "Order Module",
+      "domain": "engineering", "lifecycle": "active",
+      "properties": {"file": "modOrder.bas"},
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "function-approve-order", "type": "Function", "name": "ApproveOrder",
+      "domain": "engineering", "lifecycle": "active",
+      "properties": {"language": "VB6", "signature": "ApproveOrder(orderId As Long)"},
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "test-order-approval", "type": "Test", "name": "Order Approval Authorization Test",
+      "domain": "quality", "lifecycle": "active",
+      "properties": {"testKind": "acceptance"},
+      "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"
+    }
+  ],
+  "relationships": [
+    {"id": "rel-system-module", "type": "contains", "source": "system-orders", "target": "module-order",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-module-function", "type": "contains", "source": "module-order", "target": "function-approve-order",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-sales-workflow", "type": "initiates", "source": "actor-sales-clerk", "target": "workflow-submit-order",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-workflow-credit", "type": "guarded_by", "source": "workflow-submit-order", "target": "rule-credit-limit",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-workflow-approval", "type": "guarded_by", "source": "workflow-submit-order", "target": "rule-manager-approval",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-function-rule", "type": "implements_rule", "source": "function-approve-order", "target": "rule-manager-approval",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-form-workflow", "type": "initiates", "source": "form-order-entry", "target": "workflow-submit-order",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"},
+    {"id": "rel-test-function", "type": "tested_by", "source": "function-approve-order", "target": "test-order-approval",
+     "createdAt": "2026-11-09T10:00:00Z", "updatedAt": "2026-11-09T10:00:00Z"}
+  ],
+  "assertions": [
+    {
+      "id": "assert-intent-approval", "subject": "rule-manager-approval", "predicate": "approval_authorization",
+      "value": {"allowedRoles": ["manager"]},
+      "classification": "intent", "status": "confirmed", "confidence": 1.0,
+      "evidenceRefs": ["evidence-policy-001"],
+      "createdAt": "2026-11-09T10:00:00Z"
+    },
+    {
+      "id": "assert-observed-approval", "subject": "function-approve-order", "predicate": "approval_authorization",
+      "value": {"allowedRoles": ["manager", "supervisor", "administrator"]},
+      "classification": "observed", "status": "supported", "confidence": 0.92,
+      "evidenceRefs": ["evidence-code-001"],
+      "createdAt": "2026-11-09T10:00:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-policy-001", "type": "documentation",
+      "source": {"path": "business/approval-policy.md"},
+      "description": "Business policy specifies that only managers may approve orders.",
+      "capturedAt": "2026-11-09T10:00:00Z", "contentHash": "sha256:policy-example"
+    },
+    {
+      "id": "evidence-code-001", "type": "source_code",
+      "source": {"repository": "legacy-orders", "path": "modOrder.bas", "symbol": "ApproveOrder",
+                 "lineStart": 120, "lineEnd": 158, "commit": "a1b2c3d"},
+      "description": "Legacy approval procedure contains authorization checks for three roles.",
+      "capturedAt": "2026-11-09T10:00:00Z", "contentHash": "sha256:source-example"
+    }
+  ],
+  "constraints": [],
+  "extensions": {}
+}
